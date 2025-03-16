@@ -1,4 +1,4 @@
-model_name=CycleNet
+model_name=CycleTrendNet
 
 root_path_name=./dataset/
 data_path_name=ETTh1.csv
@@ -30,5 +30,3 @@ do
       --itr 1 --batch_size 256 --learning_rate 0.01 --random_seed $random_seed
 done
 done
-
-

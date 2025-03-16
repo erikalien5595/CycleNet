@@ -1,7 +1,7 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, PatchTST, SegRNN, CycleNet, \
-    LDLinear, SparseTSF, RLinear, RMLP, CycleiTransformer
+    LDLinear, SparseTSF, RLinear, RMLP, CycleiTransformer, CycleTrendNet
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 
@@ -36,6 +36,7 @@ class Exp_Main(Exp_Basic):
             'PatchTST': PatchTST,
             'SegRNN': SegRNN,
             'CycleNet': CycleNet,
+            'CycleTrendNet': CycleTrendNet,
             'LDLinear': LDLinear,
             'SparseTSF': SparseTSF,
             'RLinear': RLinear,
