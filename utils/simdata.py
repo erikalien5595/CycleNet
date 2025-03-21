@@ -5,7 +5,7 @@ class MultiTimeSeriesSimulator:
     生成多元时间序列数据的模拟器，每个序列由趋势、两个季节性周期（24小时和168小时）
     以及 VAR(1) 模型产生的残差组成。
     """
-    def __init__(self, T=30000, n_series=21, sigma=0.5, random_seed=42):
+    def __init__(self, T=30000, n_series=21, sigma=0.2, random_seed=42):
         """
         参数:
             T: 时间步长（默认30000）
@@ -252,10 +252,14 @@ if __name__ == "__main__":
     # 设置随机种子，保证结果可复现
     random_seed = 42
 
+    import pandas as pd
     import matplotlib.pyplot as plt
     # 创建模拟器实例，并生成数据
     simulator = MultiTimeSeriesSimulator(n_series=21, random_seed=random_seed)
     sim_data, trend, season, residuals = simulator.simulate()
+    df = pd.DataFrame(sim_data)
+    # 导出 CSV（核心操作）
+    df.to_csv('../dataset/simdata/simdata.csv', index=False)
 
     # 打印生成数据的 shape
     print("生成数据的形状：", sim_data.shape)
@@ -272,13 +276,13 @@ if __name__ == "__main__":
     plt.legend()
     plt.show()
 
-    # # 绘制前 5 个序列
-    # for i in range(12, 14):
-    #     plt.figure(figsize=(12, 8))
-    #     plt.plot(sim_data[:500, i], label=f'Series {i + 1}')
-    #     # plt.plot(sim_data[:, i], label=f'Series {i}')
-    #     plt.legend()
-    #     plt.show()
+    # 绘制前 5 个序列
+    for i in range(11, 17):
+        plt.figure(figsize=(12, 8))
+        plt.plot(sim_data[:500, i], label=f'Series {i + 1}')
+        # plt.plot(sim_data[:, i], label=f'Series {i}')
+        plt.legend()
+        plt.show()
 
     # 创建一个热力图
     import seaborn as sns

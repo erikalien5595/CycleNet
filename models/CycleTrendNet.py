@@ -68,8 +68,6 @@ class Model(nn.Module):
 
         # remove the trend from the remainder of the last step
         resid, trend = self.decomp(x)
-        print('aaa', resid)
-        print('bbb', trend)
 
         # forecasting with channel independence (parameters-sharing)
         y_trend = self.model_trend(trend.permute(0, 2, 1)).permute(0, 2, 1)
