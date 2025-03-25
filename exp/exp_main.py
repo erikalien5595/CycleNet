@@ -81,7 +81,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, dec_inp, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -92,7 +92,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs, trend_pred, trend_true = self.model(batch_x, dec_inp, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -108,8 +108,9 @@ class Exp_Main(Exp_Basic):
                 true = batch_y.detach().cpu()
 
                 loss = criterion(pred, true)
+                loss_trend = criterion(trend_pred.detach().cpu(), trend_true.detach().cpu())
 
-                total_loss.append(loss)
+                total_loss.append(loss + 0.5*loss_trend)
         total_loss = np.average(total_loss)
         self.model.train()
         return total_loss
@@ -165,7 +166,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, dec_inp, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -182,7 +183,7 @@ class Exp_Main(Exp_Basic):
                         train_loss.append(loss.item())
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs, trend_pred, trend_true = self.model(batch_x, dec_inp, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -196,7 +197,9 @@ class Exp_Main(Exp_Basic):
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     loss = criterion(outputs, batch_y)
-                    train_loss.append(loss.item())
+                    loss_trend = criterion(trend_pred.detach().cpu(), trend_true.detach().cpu())
+
+                    train_loss.append(loss.item()+loss_trend)
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -276,7 +279,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, dec_inp, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -287,7 +290,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs, trend_pred, trend_true = self.model(batch_x, dec_inp, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -376,7 +379,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, dec_inp, batch_cycle)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -387,7 +390,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs = self.model(batch_x, dec_inp, batch_cycle)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:

@@ -11,10 +11,15 @@ class RecurrentCycle(torch.nn.Module):
         super(RecurrentCycle, self).__init__()
         self.cycle_len = cycle_len
         self.channel_size = channel_size
-        self.data = torch.nn.Parameter(torch.zeros(cycle_len, channel_size), requires_grad=True)
+        self.data = torch.nn.Parameter(torch.randn((cycle_len, channel_size)), requires_grad=True)
 
     def forward(self, index, length):
-        gather_index = (index.view(-1, 1) + torch.arange(length, device=index.device).view(1, -1)) % self.cycle_len    
+        # print(index.view(-1, 1))
+        # print(torch.arange(length, device=index.device).view(1, -1))
+        # print(index.view(-1, 1) + torch.arange(length, device=index.device).view(1, -1))
+        gather_index = (index.view(-1, 1) + torch.arange(length, device=index.device).view(1, -1)) % self.cycle_len
+        # print(gather_index, gather_index.shape)
+        # print(self.data[gather_index].shape)
         return self.data[gather_index]
 
 
@@ -42,7 +47,7 @@ class Model(nn.Module):
                 nn.Linear(self.d_model, self.pred_len)
             )
 
-    def forward(self, x, cycle_index):
+    def forward(self, x, x_dec, cycle_index):
         # x: (batch_size, seq_len, enc_in), cycle_index: (batch_size,)
 
         # instance norm
@@ -55,7 +60,9 @@ class Model(nn.Module):
         x = x - self.cycleQueue(cycle_index, self.seq_len)
 
         # forecasting with channel independence (parameters-sharing)
-        y = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)
+        trend_pred = y = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)
+        # trend_true = x_dec[-self.pred_len:] - self.cycleQueue(cycle_index, self.seq_len+self.pred_len)[:, -self.pred_len:, :]
+        trend_true = x_dec[:, -self.pred_len:, :] - self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len)
 
         # add back the cycle of the output data
         y = y + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len)
@@ -63,5 +70,19 @@ class Model(nn.Module):
         # instance denorm
         if self.use_revin:
             y = y * torch.sqrt(seq_var) + seq_mean
+            trend_pred = trend_pred * torch.sqrt(seq_var) + seq_mean
+            trend_true = trend_true * torch.sqrt(seq_var) + seq_mean
+            # print(trend_true-trend_pred)
+        return y, trend_pred, trend_true
 
-        return y
+if __name__=='__main__':
+    cycle_len = 6
+    seq_len = 11
+    pred_len = 5
+    cycle_index = torch.Tensor((10, )).int()
+    cycle = RecurrentCycle(cycle_len, 3)
+    print(cycle(cycle_index, seq_len))
+    print(cycle(cycle_index, seq_len+pred_len)[:, -pred_len:, :])
+    print(cycle((cycle_index + seq_len) % cycle_len, pred_len))
+    torch.utils.data.Dataset
+

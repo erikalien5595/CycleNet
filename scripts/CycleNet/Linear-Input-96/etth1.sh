@@ -1,4 +1,4 @@
-model_name=CycleTrendNet
+model_name=CycleNet
 
 root_path_name=./dataset/
 data_path_name=ETTh1.csv
