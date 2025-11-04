@@ -5,6 +5,9 @@ from exp.exp_main import Exp_Main
 import random
 import numpy as np
 
+torch.multiprocessing.set_sharing_strategy('file_system')
+print('进入run_longExp.py时的卡数：', torch.cuda.device_count())
+
 parser = argparse.ArgumentParser(description='Model family for Time Series Forecasting')
 
 # random seed

@@ -79,7 +79,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, batch_cycle, vali_data.cycle_data)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -90,7 +90,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs = self.model(batch_x, batch_cycle, vali_data.cycle_data)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -116,7 +116,6 @@ class Exp_Main(Exp_Basic):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
-
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
             os.makedirs(path)
@@ -163,7 +162,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, batch_cycle, train_data.cycle_data)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -180,7 +179,7 @@ class Exp_Main(Exp_Basic):
                         train_loss.append(loss.item())
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs = self.model(batch_x, batch_cycle, train_data.cycle_data)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -274,7 +273,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, batch_cycle, test_data.cycle_data)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -285,7 +284,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs = self.model(batch_x, batch_cycle, test_data.cycle_data)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -374,7 +373,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle)
+                            outputs = self.model(batch_x, batch_cycle, pred_data.cycle_data)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -385,7 +384,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle)
+                        outputs = self.model(batch_x, batch_cycle, pred_data.cycle_data)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:

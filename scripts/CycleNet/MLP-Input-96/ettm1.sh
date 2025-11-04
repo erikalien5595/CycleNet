@@ -1,6 +1,9 @@
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+gpu=2
+
 model_name=CycleNet
 
-root_path_name=./dataset/
+root_path_name=./dataset/ETT-small/
 data_path_name=ETTm1.csv
 model_id_name=ETTm1
 data_name=ETTm1
@@ -26,6 +29,7 @@ do
       --model_type $model_type \
       --train_epochs 30 \
       --patience 5 \
+      --gpu $gpu \
       --itr 1 --batch_size 256 --learning_rate 0.005 --random_seed $random_seed
 done
 done

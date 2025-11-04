@@ -1,3 +1,5 @@
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+gpu=0
 model_name=CycleNet
 
 root_path_name=./dataset/
@@ -27,6 +29,7 @@ do
       --train_epochs 30 \
       --patience 5 \
       --use_revin 0 \
+      --gpu $gpu \
       --itr 1 --batch_size 64 --learning_rate 0.01 --random_seed $random_seed
 done
 done
