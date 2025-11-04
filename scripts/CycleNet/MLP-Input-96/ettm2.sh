@@ -12,7 +12,7 @@ model_type='mlp'
 seq_len=96
 for pred_len in 96 192 336 720
 do
-for random_seed in 2025 2026 2027 2028
+for random_seed in 2024 2025 2026 2027 2028
 do
     python -u run.py \
       --is_training 1 \

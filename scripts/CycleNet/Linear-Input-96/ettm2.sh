@@ -1,5 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
-gpu=1
+gpu=0
 model_name=CycleNet
 
 root_path_name=./dataset/
