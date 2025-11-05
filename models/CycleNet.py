@@ -47,24 +47,30 @@ class Model(nn.Module):
         # x: (batch_size, seq_len, enc_in), cycle_index: (batch_size,)
         cycle_data = torch.Tensor(cycle_data).to(cycle_index.device)
 
+        # # instance norm
+        # if self.use_revin:
+        #     seq_mean = torch.mean(x, dim=1, keepdim=True)
+        #     seq_var = torch.var(x, dim=1, keepdim=True) + 1e-5
+        #     x = (x - seq_mean) / torch.sqrt(seq_var)
+
+        # remove the cycle of the input data
+        # Q = self.cycleQueue(cycle_index, self.seq_len, cycle_data)
+        # Q_mean = torch.mean(Q, dim=1, keepdim=True)
+        # Q_std = torch.sqrt(torch.var(Q, dim=1, keepdim=True) + 1e-5)
+        # x = x - (Q - Q_mean) / Q_std  # self.cycleQueue(cycle_index, self.seq_len, cycle_data)
+
         # remove the cycle of the input data
         x = x - self.cycleQueue(cycle_index, self.seq_len, cycle_data)
-
-        # instance norm
-        if self.use_revin:
-            seq_mean = torch.mean(x, dim=1, keepdim=True)
-            seq_var = torch.var(x, dim=1, keepdim=True) + 1e-5
-            x = (x - seq_mean) / torch.sqrt(seq_var)
 
         # forecasting with channel independence (parameters-sharing)
         y = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)
 
-        # instance denorm
-        if self.use_revin:
-            y = y * torch.sqrt(seq_var) + seq_mean
-
         # add back the cycle of the output data
         y = y + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
+        # y = y + (self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data) - Q_mean) / Q_std
 
+        # # instance denorm
+        # if self.use_revin:
+        #     y = y * torch.sqrt(seq_var) + seq_mean
 
         return y
