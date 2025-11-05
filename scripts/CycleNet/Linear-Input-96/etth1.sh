@@ -2,11 +2,10 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3
 gpu=0
 model_name=CycleNet
 
-root_path_name=./dataset/
+root_path_name=./dataset/ETT-small/
 data_path_name=ETTh1.csv
 model_id_name=ETTh1
 data_name=ETTh1
-
 
 model_type='linear'
 seq_len=96

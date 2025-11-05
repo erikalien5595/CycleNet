@@ -1,13 +1,11 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 gpu=3
-
 model_name=CycleNet
 
 root_path_name=./dataset/
 data_path_name=traffic.csv
 model_id_name=traffic
 data_name=custom
-
 
 model_type='linear'
 seq_len=96

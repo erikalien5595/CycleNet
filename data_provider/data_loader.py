@@ -653,7 +653,7 @@ class Dataset_ETT_hour(Dataset):
         # 使用窗口为 self.cycle 的居中移动平均估计趋势
         trend = train_data_std.rolling(window=int(self.cycle), center=True, min_periods=1).mean()
         print('cycle', self.cycle, 'train_data_std', train_data_std.shape, 'trend', trend.shape)
-        seasonal = train_data_std - trend
+        seasonal = train_data_std #- trend
 
         # 按“周期内位置”分组取季节项的均值，得到 cycle_data
         pos = (np.arange(n)+self.seq_len) % int(self.cycle)
@@ -773,7 +773,7 @@ class Dataset_ETT_minute(Dataset):
         trend = train_data_std.rolling(window=int(self.cycle), center=True, min_periods=1).mean()
 
         print('cycle', self.cycle, 'train_data_std', train_data_std.shape, 'trend', trend.shape)
-        seasonal = train_data_std - trend
+        seasonal = train_data_std #- trend
 
         # 按“周期内位置”分组取季节项的均值，得到 cycle_data
         pos = (np.arange(n)+self.seq_len) % int(self.cycle)
@@ -907,7 +907,7 @@ class Dataset_Custom(Dataset):
         trend = train_data_std.rolling(window=int(self.cycle), center=True, min_periods=1).mean()
 
         print('cycle', self.cycle, 'train_data_std', train_data_std.shape, 'trend', trend.shape)
-        seasonal = train_data_std - trend
+        seasonal = train_data_std #- trend
 
         # 按“周期内位置”分组取季节项的均值，得到 cycle_data
         pos = (np.arange(n)+self.seq_len) % int(self.cycle)
@@ -1203,7 +1203,7 @@ class Dataset_Solar(Dataset):
         trend = train_data_std.rolling(window=int(self.cycle), center=True, min_periods=1).mean()
 
         print('cycle', self.cycle, 'train_data_std', train_data_std.shape, 'trend', trend.shape)
-        seasonal = train_data_std - trend
+        seasonal = train_data_std #- trend
 
         # 按“周期内位置”分组取季节项的均值，得到 cycle_data
         pos = (np.arange(n)+self.seq_len) % int(self.cycle)

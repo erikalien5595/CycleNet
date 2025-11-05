@@ -7,7 +7,6 @@ data_path_name=electricity.csv
 model_id_name=Electricity
 data_name=custom
 
-
 model_type='linear'
 seq_len=96
 for pred_len in 96 192 336 720
