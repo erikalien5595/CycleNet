@@ -912,6 +912,12 @@ class Dataset_Custom(Dataset):
         # 按“周期内位置”分组取季节项的均值，得到 cycle_data
         pos = (np.arange(n)+self.seq_len) % int(self.cycle)
         out = seasonal.groupby(pos).mean()
+        # out2 = train_data_std.groupby(pos).mean()
+        # print(train_data_std.max(), train_data_std.min(), train_data_std.mean())
+        # print('====')
+        # diff = out - out2
+        # print(diff.max(), diff.min(), diff.mean())
+        # exit()
 
         # train_data_std = pd.DataFrame(data[border1s[0]:border2s[0]], columns=df_data.columns)
         # n = len(train_data_std)
@@ -954,6 +960,42 @@ class Dataset_Custom(Dataset):
         #     np.save(save_path, self.cycle_data)
         # except Exception as e:
         #     print(f'Warning: failed to save cycle_data to .npy: {e}')
+
+        # # out 是上面计算得到的 pandas DataFrame（index 为周期内位置，columns 为通道）
+        # with PdfPages(pdf_path) as pdf:
+        #     for idx, col in enumerate(out.columns):
+        #         fig, ax = plt.subplots(figsize=(8, 4))
+        #         ax.plot(out.index, out[col].values, label=f'decomp_{col}', color='C0', linestyle='--')
+        #         ax.plot(out.index, out2[col].values, label=f'no-decomp_{col}', color='C1', linestyle='-')
+        #         ax.set_title(f'Cycle mean - {col}')
+        #         ax.set_xlabel('position_in_cycle')
+        #         ax.set_ylabel('seasonal_value')
+        #         ax.grid(True)
+        #         ax.legend()
+        #         plt.tight_layout()
+        #         pdf.savefig(fig)
+        #         plt.close(fig)
+        #
+        # pdf_name = f'cycle_data_{basename}_cycle{int(self.cycle)}_3.pdf'
+        # pdf_path = os.path.join(self.root_path, pdf_name)
+        # # out_trained = np.load('dataset/trained_ECL.npy')
+        #
+        # # out 是上面计算得到的 pandas DataFrame（index 为周期内位置，columns 为通道）
+        # with PdfPages(pdf_path) as pdf:
+        #     for idx, col in enumerate(out.columns):
+        #         fig, ax = plt.subplots(figsize=(8, 4))
+        #         ax.plot(train_data_std[col].values[:1000], label=f'train_data_std_{col}', color='C0', linestyle='--')
+        #         ax.plot(trend[col].values[:1000], label=f'trend_{col}', color='C1', linestyle='-')
+        #         ax.set_title(f'Decomp Result - {col}')
+        #         ax.set_xlabel('t')
+        #         ax.set_ylabel('value')
+        #         ax.grid(True)
+        #         ax.legend()
+        #         plt.tight_layout()
+        #         pdf.savefig(fig)
+        #         plt.close(fig)
+        # exit()
+
         # import matplotlib
         # matplotlib.use('Agg')
         # import matplotlib.pyplot as plt
