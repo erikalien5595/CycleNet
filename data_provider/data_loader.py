@@ -1331,11 +1331,25 @@ class Dataset_PEMS(Dataset):
             self.scaler.fit(train_data)
             data = self.scaler.transform(data)
 
+        # 使用窗口为 self.cycle 的居中移动平均估计趋势
+        train_data_std = pd.DataFrame(data[border1s[0]:border2s[0]])
+        n = len(train_data_std)
+        trend = train_data_std.rolling(window=int(self.cycle), center=True, min_periods=1).mean()
+
+        print('cycle', self.cycle, 'train_data_std', train_data_std.shape, 'trend', trend.shape)
+        seasonal = train_data_std #- trend
+
+        # 按“周期内位置”分组取季节项的均值，得到 cycle_data
+        pos = (np.arange(n)+self.seq_len) % int(self.cycle)
+        out = seasonal.groupby(pos).mean()
+
+
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
 
         # add cycle
         self.cycle_index = (np.arange(len(data)) % self.cycle)[border1:border2]
+        self.cycle_data = out.values
 
     def __getitem__(self, index):
         s_begin = index
