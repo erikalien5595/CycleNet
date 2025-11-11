@@ -969,8 +969,12 @@ class Dataset_Custom(Dataset):
         df_stamp['date'] = pd.to_datetime(df_stamp['date'])
         df_stamp['hour'] = df_stamp['date'].dt.hour
         df_stamp['day'] = df_stamp['date'].dt.weekday
+        df_stamp['month'] = df_stamp['date'].dt.month
+        df_stamp['day_in_month'] = df_stamp['date'].dt.day
         self.hour_index = df_stamp['hour'].values
         self.day_index = df_stamp['day'].values
+        self.month_index = df_stamp['month'].values - 1  # 0-11
+        self.day_in_month_index = df_stamp['day_in_month'].values - 1  # 0-30
 
         # add cycle
         self.cycle_index = (np.arange(len(data)) % self.cycle)[border1:border2]
@@ -1090,9 +1094,11 @@ class Dataset_Custom(Dataset):
         seq_y_mark = self.data_stamp[r_begin:r_end]
         hour_index = torch.tensor(self.hour_index[s_end])
         day_index = torch.tensor(self.day_index[s_end])
+        month_index = torch.tensor(self.month_index[s_end])
+        day_in_month_index = torch.tensor(self.day_in_month_index[s_end])
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index, month_index, day_in_month_index
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1

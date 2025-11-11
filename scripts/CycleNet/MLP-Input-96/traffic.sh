@@ -11,7 +11,7 @@ data_name=custom
 
 model_type='mlp'
 seq_len=96
-for pred_len in 192 336 720
+for pred_len in 96 #192 336 720
 do
 for random_seed in 2024 #2025 2026 2027 2028
 do
@@ -30,12 +30,13 @@ do
       --model_type $model_type \
       --train_epochs 30 \
       --patience 5 \
+      --lradj type3 \
       --gpu $gpu \
       --dropout 0 \
       --use_hour_index 1 \
       --use_day_index 1 \
       --t_dim 256 \
       --s_dim 256 \
-      --itr 1 --batch_size 64 --learning_rate 0.001 --random_seed $random_seed
+      --itr 1 --batch_size 16 --learning_rate 0.001 --random_seed $random_seed
 done
 done
