@@ -682,6 +682,13 @@ class Dataset_ETT_hour(Dataset):
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
 
+        df_stamp = df_raw[['date']][border1:border2]
+        df_stamp['date'] = pd.to_datetime(df_stamp['date'])
+        df_stamp['hour'] = df_stamp['date'].dt.hour
+        df_stamp['day'] = df_stamp['date'].dt.weekday
+        self.hour_index = df_stamp['hour'].values
+        self.day_index = df_stamp['day'].values
+
         # add cycle
         self.cycle_index = (np.arange(len(data)) % self.cycle)[border1:border2]
         self.cycle_data = out.values
@@ -697,10 +704,12 @@ class Dataset_ETT_hour(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
+        hour_index = torch.tensor(self.hour_index[s_end])
+        day_index = torch.tensor(self.day_index[s_end])
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
@@ -804,6 +813,13 @@ class Dataset_ETT_minute(Dataset):
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
 
+        df_stamp = df_raw[['date']][border1:border2]
+        df_stamp['date'] = pd.to_datetime(df_stamp['date'])
+        df_stamp['hour'] = df_stamp['date'].dt.hour
+        df_stamp['day'] = df_stamp['date'].dt.weekday
+        self.hour_index = df_stamp['hour'].values
+        self.day_index = df_stamp['day'].values
+
         # add cycle
         self.cycle_index = (np.arange(len(data)) % self.cycle)[border1:border2]
         self.cycle_data = out.values
@@ -818,10 +834,12 @@ class Dataset_ETT_minute(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
+        hour_index = torch.tensor(self.hour_index[s_end])
+        day_index = torch.tensor(self.day_index[s_end])
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
@@ -947,6 +965,13 @@ class Dataset_Custom(Dataset):
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
 
+        df_stamp = df_raw[['date']][border1:border2]
+        df_stamp['date'] = pd.to_datetime(df_stamp['date'])
+        df_stamp['hour'] = df_stamp['date'].dt.hour
+        df_stamp['day'] = df_stamp['date'].dt.weekday
+        self.hour_index = df_stamp['hour'].values
+        self.day_index = df_stamp['day'].values
+
         # add cycle
         self.cycle_index = (np.arange(len(data)) % self.cycle)[border1:border2]
         self.cycle_data = out.values
@@ -1063,9 +1088,11 @@ class Dataset_Custom(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
+        hour_index = torch.tensor(self.hour_index[s_end])
+        day_index = torch.tensor(self.day_index[s_end])
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
@@ -1278,7 +1305,7 @@ class Dataset_Solar(Dataset):
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1

@@ -64,13 +64,18 @@ class Exp_Main(Exp_Basic):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(vali_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle, hour_index, day_index) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
+
+                hour_index = hour_index.int().to(self.device)
+                # without week-level bank
+                if torch.all(day_index != -1):
+                    day_index = day_index.int().to(self.device)
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
@@ -79,7 +84,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle, vali_data.cycle_data)
+                            outputs = self.model(batch_x, batch_cycle, vali_data.cycle_data, hour_index, day_index)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -90,7 +95,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle, vali_data.cycle_data)
+                        outputs = self.model(batch_x, batch_cycle, vali_data.cycle_data, hour_index, day_index)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -144,7 +149,7 @@ class Exp_Main(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             # max_memory = 0
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(train_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle, hour_index, day_index) in enumerate(train_loader):
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
@@ -154,6 +159,12 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
+                hour_index = hour_index.int().to(self.device)
+                # without week-level bank
+                if torch.all(day_index != -1):
+                    day_index = day_index.int().to(self.device)
+
+
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
@@ -162,7 +173,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle, train_data.cycle_data)
+                            outputs = self.model(batch_x, batch_cycle, train_data.cycle_data, hour_index, day_index)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -179,7 +190,7 @@ class Exp_Main(Exp_Basic):
                         train_loss.append(loss.item())
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle, train_data.cycle_data)
+                        outputs = self.model(batch_x, batch_cycle, train_data.cycle_data, hour_index, day_index)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -258,13 +269,19 @@ class Exp_Main(Exp_Basic):
 
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(test_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle, hour_index, day_index) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
+
+                hour_index = hour_index.int().to(self.device)
+                # without week-level bank
+                if torch.all(day_index != -1):
+                    day_index = day_index.int().to(self.device)
+
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
@@ -273,7 +290,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle, test_data.cycle_data)
+                            outputs = self.model(batch_x, batch_cycle, test_data.cycle_data, hour_index, day_index)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -284,7 +301,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle, test_data.cycle_data)
+                        outputs = self.model(batch_x, batch_cycle, test_data.cycle_data, hour_index, day_index)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:
@@ -358,12 +375,18 @@ class Exp_Main(Exp_Basic):
 
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle) in enumerate(pred_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_cycle, hour_index, day_index) in enumerate(pred_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
+
+                hour_index = hour_index.int().to(self.device)
+                # without week-level bank
+                if torch.all(day_index != -1):
+                    day_index = day_index.int().to(self.device)
+
 
                 # decoder input
                 dec_inp = torch.zeros([batch_y.shape[0], self.args.pred_len, batch_y.shape[2]]).float().to(
@@ -373,7 +396,7 @@ class Exp_Main(Exp_Basic):
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if any(substr in self.args.model for substr in {'Cycle'}):
-                            outputs = self.model(batch_x, batch_cycle, pred_data.cycle_data)
+                            outputs = self.model(batch_x, batch_cycle, pred_data.cycle_data, hour_index, day_index)
                         elif any(substr in self.args.model for substr in
                                  {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                             outputs = self.model(batch_x)
@@ -384,7 +407,7 @@ class Exp_Main(Exp_Basic):
                                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 else:
                     if any(substr in self.args.model for substr in {'Cycle'}):
-                        outputs = self.model(batch_x, batch_cycle, pred_data.cycle_data)
+                        outputs = self.model(batch_x, batch_cycle, pred_data.cycle_data, hour_index, day_index)
                     elif any(substr in self.args.model for substr in {'Linear', 'MLP', 'SegRNN', 'TST', 'SparseTSF'}):
                         outputs = self.model(batch_x)
                     else:

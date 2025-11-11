@@ -40,6 +40,15 @@ parser.add_argument('--cycle', type=int, default=24, help='cycle length')
 parser.add_argument('--model_type', type=str, default='mlp', help='model type, options: [linear, mlp]')
 parser.add_argument('--use_revin', type=int, default=1, help='1: use revin or 0: no revin')
 
+parser.add_argument('--use_day_index', type=int, default=0, help='1: use day_index or 0: no use')
+parser.add_argument('--use_hour_index', type=int, default=0, help='1: use hour_index or 0: no use')
+parser.add_argument('--use_min_index', type=int, default=0, help='1: use min_index or 0: no use')
+parser.add_argument('--day_length', type=int, default=7, help='embedding length of day index')
+parser.add_argument('--hour_length', type=int, default=24, help='embedding length of hour index')
+parser.add_argument('--min_length', type=int, default=4, help='embedding length of min index')
+parser.add_argument('--t_dim', type=int, default=0, help='dimension of time embedding')
+parser.add_argument('--s_dim', type=int, default=0, help='dimension of spatial embedding')
+
 # DLinear
 #parser.add_argument('--individual', action='store_true', default=False, help='DLinear: a linear layer for each variate(channel) individually')
 
@@ -74,7 +83,7 @@ parser.add_argument('--d_model', type=int, default=512, help='dimension of model
 parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
 parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
 parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
-parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
+parser.add_argument('--d_ff', type=int, default=1024, help='dimension of fcn')
 parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
 parser.add_argument('--factor', type=int, default=1, help='attn factor')
 parser.add_argument('--distil', action='store_false',

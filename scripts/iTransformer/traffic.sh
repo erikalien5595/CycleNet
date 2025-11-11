@@ -1,3 +1,6 @@
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+gpu=3
+
 model_name=CycleiTransformer
 
 root_path_name=./dataset/
@@ -29,6 +32,7 @@ do
       --dropout 0.1 \
       --train_epochs 30 \
       --patience 5 \
+      --gpu $gpu \
       --itr 1 --batch_size 16 --learning_rate 0.001 --random_seed $random_seed
 done
 done
