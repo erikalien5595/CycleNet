@@ -709,7 +709,7 @@ class Dataset_ETT_hour(Dataset):
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index, -1, -1
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
@@ -839,7 +839,7 @@ class Dataset_ETT_minute(Dataset):
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index, -1, -1
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
@@ -1311,7 +1311,7 @@ class Dataset_Solar(Dataset):
 
         cycle_index = torch.tensor(self.cycle_index[s_end])
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, hour_index, day_index
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, cycle_index, -1, -1, -1, -1
 
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1

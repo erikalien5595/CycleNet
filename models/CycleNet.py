@@ -30,7 +30,7 @@ class MLPBlock(nn.Module):
         )
 
     def forward(self, x):
-        return self.model(x)
+        return x + self.model(x)
 
 
 class Model(nn.Module):
@@ -63,7 +63,7 @@ class Model(nn.Module):
             self.emb_day = nn.Parameter(torch.zeros(self.emb_len_day, self.t_dim), requires_grad=True)
         if self.use_hour_index:
             self.emb_hour = nn.Parameter(torch.zeros(self.emb_len_hour, self.t_dim), requires_grad=True)
-            # self.emb_month = nn.Parameter(torch.zeros(12, self.t_dim), requires_grad=True)
+            self.emb_month = nn.Parameter(torch.zeros(12, self.t_dim), requires_grad=True)
             self.emb_day_in_month = nn.Parameter(torch.zeros(31, self.t_dim), requires_grad=True)
         # if self.use_min_index:
         #     self.emb_min = nn.Parameter(torch.zeros(self.emb_len_min, self.t_dim), requires_grad=True)
@@ -72,7 +72,7 @@ class Model(nn.Module):
         nn.init.xavier_uniform_(self.node_emb)
         nn.init.xavier_uniform_(self.emb_day)
         nn.init.xavier_uniform_(self.emb_hour)
-        # nn.init.xavier_uniform_(self.emb_month)
+        nn.init.xavier_uniform_(self.emb_month)
         nn.init.xavier_uniform_(self.emb_day_in_month)
         # nn.init.xavier_uniform_(self.emb_min)
 
@@ -81,7 +81,9 @@ class Model(nn.Module):
         if self.model_type == 'linear':
             self.model = nn.Linear(self.input_dim, self.output_dim)
         elif self.model_type == 'mlp':
-            self.model = nn.ModuleList([MLPBlock(self.input_dim, self.output_dim, self.d_ff, configs.dropout)
+            # self.model = nn.ModuleList([MLPBlock(self.input_dim, self.output_dim, self.d_ff, configs.dropout)
+            #                             for _ in range(configs.e_layers)])
+            self.model = nn.Sequential(*[MLPBlock(self.input_dim, self.output_dim, self.d_ff, configs.dropout)
                                         for _ in range(configs.e_layers)])
             # self.model = nn.Sequential(
             #     nn.Linear(self.input_dim, self.d_ff),
@@ -108,12 +110,12 @@ class Model(nn.Module):
             seq_var = torch.var(x, dim=1, keepdim=True) + 1e-5
             x = (x - seq_mean) / torch.sqrt(seq_var)
 
-        # # remove the cycle of the input data
+        # remove the cycle of the input data
+        x = x - self.cycleQueue(cycle_index, self.seq_len, cycle_data)
         # Q = self.cycleQueue(cycle_index, self.seq_len, cycle_data)
         # Q_mean = torch.mean(Q, dim=1, keepdim=True)
         # Q_std = torch.sqrt(torch.var(Q, dim=1, keepdim=True) + 1e-5)
         # x = x - (Q - Q_mean) / Q_std  # self.cycleQueue(cycle_index, self.seq_len, cycle_data)
-        x = x - self.cycleQueue(cycle_index, self.seq_len, cycle_data)
 
         x = self.linear_emb(x.permute(0, 2, 1)).permute(0, 2, 1)  # batch_size, d_model, N
         emb_day = torch.zeros(batch_size, self.t_dim, self.enc_in).to(x.device)
@@ -127,8 +129,8 @@ class Model(nn.Module):
         if self.use_hour_index:
             emb_hour = self.emb_hour[hour_index.long()]
             emb_hour = emb_hour.unsqueeze(-1).expand(-1, -1, self.enc_in)  # batch_size, t_dim, N
-            # emb_month = self.emb_month[month_index.long()]
-            # emb_month = emb_month.unsqueeze(-1).expand(-1, -1, self.enc_in)  # batch_size, t_dim, N
+            emb_month = self.emb_month[month_index.long()]
+            emb_month = emb_month.unsqueeze(-1).expand(-1, -1, self.enc_in)  # batch_size, t_dim, N
             emb_day_in_month = self.emb_day_in_month[day_in_month_index.long()]
             emb_day_in_month = emb_day_in_month.unsqueeze(-1).expand(-1, -1, self.enc_in)  # batch_size, t_dim, N
             emb_hour = emb_hour
@@ -140,8 +142,7 @@ class Model(nn.Module):
         node_emb = self.node_emb.unsqueeze(0).expand(batch_size, -1, -1)  # batch_size, s_dim, N
         x = torch.cat([x, time_emb, node_emb], dim=1)  # batch_size, d_model+t_dim+s_dim, N
         # forecasting with channel independence (parameters-sharing)
-        for model in self.model:
-            x = x + model(x.permute(0, 2, 1)).permute(0, 2, 1)
+        x = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)
 
         y = self.regression(x.permute(0, 2, 1)).permute(0, 2, 1)
 

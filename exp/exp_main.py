@@ -72,10 +72,14 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                hour_index = hour_index.int().to(self.device)
                 # without week-level bank
                 if torch.all(day_index != -1):
+                    hour_index = hour_index.int().to(self.device)
                     day_index = day_index.int().to(self.device)
+                    month_index = month_index.int().to(self.device)
+                    day_in_month_index = day_in_month_index.int().to(self.device)
+                else:
+                    hour_index, day_index, month_index, day_in_month_index = None, None, None, None
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
@@ -159,10 +163,13 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                hour_index = hour_index.int().to(self.device)
-                # without week-level bank
                 if torch.all(day_index != -1):
+                    hour_index = hour_index.int().to(self.device)
                     day_index = day_index.int().to(self.device)
+                    month_index = month_index.int().to(self.device)
+                    day_in_month_index = day_in_month_index.int().to(self.device)
+                else:
+                    hour_index, day_index, month_index, day_in_month_index = None, None, None, None
 
 
                 # decoder input
@@ -277,10 +284,13 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                hour_index = hour_index.int().to(self.device)
-                # without week-level bank
                 if torch.all(day_index != -1):
+                    hour_index = hour_index.int().to(self.device)
                     day_index = day_index.int().to(self.device)
+                    month_index = month_index.int().to(self.device)
+                    day_in_month_index = day_in_month_index.int().to(self.device)
+                else:
+                    hour_index, day_index, month_index, day_in_month_index = None, None, None, None
 
 
                 # decoder input
@@ -382,10 +392,13 @@ class Exp_Main(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
                 batch_cycle = batch_cycle.int().to(self.device)
 
-                hour_index = hour_index.int().to(self.device)
-                # without week-level bank
                 if torch.all(day_index != -1):
+                    hour_index = hour_index.int().to(self.device)
                     day_index = day_index.int().to(self.device)
+                    month_index = month_index.int().to(self.device)
+                    day_in_month_index = day_in_month_index.int().to(self.device)
+                else:
+                    hour_index, day_index, month_index, day_in_month_index = None, None, None, None
 
 
                 # decoder input

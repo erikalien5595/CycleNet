@@ -12,11 +12,12 @@ class RecurrentCycle(torch.nn.Module):
         super(RecurrentCycle, self).__init__()
         self.cycle_len = cycle_len
         self.channel_size = channel_size
-        self.data = torch.nn.Parameter(torch.zeros(cycle_len, channel_size), requires_grad=True)
+        # self.data = torch.nn.Parameter(torch.zeros(cycle_len, channel_size), requires_grad=True)
 
-    def forward(self, index, length):
+    def forward(self, index, length, cycle_data):
         gather_index = (index.view(-1, 1) + torch.arange(length, device=index.device).view(1, -1)) % self.cycle_len
-        return self.data[gather_index]
+        return cycle_data[gather_index]
+        # return self.data[gather_index]
 
 
 class Model(nn.Module):
@@ -51,7 +52,7 @@ class Model(nn.Module):
         self.enc_in = configs.enc_in
         self.cycleQueue = RecurrentCycle(cycle_len=self.cycle_len, channel_size=self.enc_in)
 
-    def forecast(self, x_enc, cycle_index, x_mark_enc=None, x_dec=None, x_mark_dec=None):
+    def forecast(self, x_enc, cycle_index, cycle_data, hour_index=None, day_index=None, month_index=None, day_in_month_index=None, x_mark_enc=None, x_dec=None, x_mark_dec=None):
 
         if self.use_norm:
             # Normalization from Non-stationary Transformer
@@ -62,7 +63,7 @@ class Model(nn.Module):
 
         ### Intergration of Cycle
         # remove the cycle of the input data
-        x_enc = x_enc - self.cycleQueue(cycle_index, self.seq_len)
+        x_enc = x_enc - self.cycleQueue(cycle_index, self.seq_len, cycle_data)
 
         _, _, N = x_enc.shape  # B L N
         # B: batch_size;    E: d_model;
@@ -82,7 +83,7 @@ class Model(nn.Module):
 
         ### Intergration of Cycle
         # add back the cycle of the output data
-        dec_out = dec_out + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len)
+        dec_out = dec_out + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
 
         if self.use_norm:
             # De-Normalization from Non-stationary Transformer
@@ -92,6 +93,7 @@ class Model(nn.Module):
 
         return dec_out
 
-    def forward(self, x_enc, cycle_index, x_mark_enc=None, x_dec=None, x_mark_dec=None, mask=None):
-        dec_out = self.forecast(x_enc, cycle_index, x_mark_enc, x_dec, x_mark_dec)
+    def forward(self, x_enc, cycle_index, cycle_data, hour_index=None, day_index=None, month_index=None, day_in_month_index=None, x_mark_enc=None, x_dec=None, x_mark_dec=None, mask=None):
+        cycle_data = torch.Tensor(cycle_data).to(cycle_index.device)
+        dec_out = self.forecast(x_enc, cycle_index, cycle_data, hour_index, day_index, month_index, day_in_month_index, x_mark_enc, x_dec, x_mark_dec)
         return dec_out[:, -self.pred_len:, :]  # [B, L, D]
