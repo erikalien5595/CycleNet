@@ -9,8 +9,8 @@ model_id_name=Solar
 data_name=Solar
 
 model_type='mlp'
-seq_len=96
-for pred_len in 96 #192 336 720
+seq_len=720
+for pred_len in 96 192 336 720
 do
 for random_seed in 2024 #2025 2026 2027 2028
 do
@@ -31,6 +31,7 @@ do
       --patience 5 \
       --use_revin 0 \
       --gpu $gpu \
+      --des 'NoQ' \
       --itr 1 --batch_size 64 --learning_rate 0.01 --random_seed $random_seed
 done
 done

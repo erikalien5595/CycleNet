@@ -98,7 +98,7 @@ class Model(nn.Module):
     def forward(self, x, cycle_index, cycle_data, hour_index=None, day_index=None, month_index=None, day_in_month_index=None):
         # x: (batch_size, seq_len, enc_in), cycle_index: (batch_size,)
         batch_size, _, _ = x.shape
-        cycle_data = torch.Tensor(cycle_data).to(cycle_index.device)
+        # cycle_data = torch.Tensor(cycle_data).to(cycle_index.device)
         # print('hour_index', hour_index, 'day_index', day_index)
 
         # # remove the cycle of the input data
@@ -111,7 +111,7 @@ class Model(nn.Module):
             x = (x - seq_mean) / torch.sqrt(seq_var)
 
         # remove the cycle of the input data
-        x = x - self.cycleQueue(cycle_index, self.seq_len, cycle_data)
+        # x = x - self.cycleQueue(cycle_index, self.seq_len, cycle_data)
         # Q = self.cycleQueue(cycle_index, self.seq_len, cycle_data)
         # Q_mean = torch.mean(Q, dim=1, keepdim=True)
         # Q_std = torch.sqrt(torch.var(Q, dim=1, keepdim=True) + 1e-5)
@@ -149,7 +149,7 @@ class Model(nn.Module):
         y = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)  # batch_size, pred_len, N
 
         # add back the cycle of the output data
-        y = y + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
+        # y = y + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
         # Q1 = self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
         # Q_mean1 = torch.mean(Q1, dim=1, keepdim=True)
         # Q_std1 = torch.sqrt(torch.var(Q1, dim=1, keepdim=True) + 1e-5)
@@ -158,5 +158,7 @@ class Model(nn.Module):
         # instance denorm
         if self.use_revin:
             y = y * torch.sqrt(seq_var) + seq_mean
+
+        # y = self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
 
         return y

@@ -13,7 +13,7 @@ model_type='mlp'
 seq_len=96
 for pred_len in 12 24 48 96
 do
-for random_seed in 2025 2026 2027 2028
+for random_seed in 2024 #2025 2026 2027 2028
 do
     python -u run.py \
       --is_training 1 \
@@ -39,6 +39,7 @@ do
       --d_model 128 \
       --d_ff 512 \
       --use_revin 0 \
+      --des 'PurePeriodPred' \
       --itr 1 --batch_size 16 --learning_rate 0.001 --random_seed $random_seed
 done
 done
