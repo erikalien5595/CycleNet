@@ -141,7 +141,7 @@ if args.is_training:
     for ii in range(args.itr):
 
         # setting record of experiments
-        setting = '{}_{}_{}_ft{}_sl{}_pl{}_cycle{}_{}_seed{}'.format(
+        setting = '{}_{}_{}_ft{}_sl{}_pl{}_cycle{}_{}_{}_seed{}'.format(
             args.model_id,
             args.model,
             args.data,
@@ -150,6 +150,7 @@ if args.is_training:
             args.pred_len,
             args.cycle,
             args.model_type,
+            args.des,
             fix_seed)
 
         exp = Exp(args)  # set experiments
@@ -166,7 +167,7 @@ if args.is_training:
         torch.cuda.empty_cache()
 else:
     ii = 0
-    setting = '{}_{}_{}_ft{}_sl{}_pl{}_cycle{}_{}_seed{}'.format(
+    setting = '{}_{}_{}_ft{}_sl{}_pl{}_cycle{}_{}_{}_seed{}'.format(
         args.model_id,
         args.model,
         args.data,
@@ -175,6 +176,7 @@ else:
         args.pred_len,
         args.cycle,
         args.model_type,
+        args.des,
         fix_seed)
 
     exp = Exp(args)  # set experiments
