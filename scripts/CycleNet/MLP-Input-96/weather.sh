@@ -36,7 +36,7 @@ do
       --s_dim 16 \
       --d_model 512 \
       --d_ff 512 \
-      --des 'NoQ' \
+      --des 'IncreasingLookback' \
       --itr 1 --batch_size 256 --learning_rate 0.005 --random_seed $random_seed
 done
 done

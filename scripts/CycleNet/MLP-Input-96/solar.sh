@@ -1,5 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
-gpu=1
+gpu=3
 
 model_name=CycleNet
 
@@ -31,7 +31,7 @@ do
       --patience 5 \
       --use_revin 0 \
       --gpu $gpu \
-      --des 'NoQ' \
+      --des 'IncreasingLookback' \
       --itr 1 --batch_size 64 --learning_rate 0.01 --random_seed $random_seed
 done
 done

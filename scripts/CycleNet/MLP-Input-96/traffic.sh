@@ -37,7 +37,7 @@ do
       --use_day_index 1 \
       --t_dim 256 \
       --s_dim 256 \
-      --des 'NoQ' \
+      --des 'IncreasingLookback' \
       --itr 1 --batch_size 16 --learning_rate 0.001 --random_seed $random_seed
 done
 done

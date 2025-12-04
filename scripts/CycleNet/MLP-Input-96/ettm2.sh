@@ -1,5 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
-gpu=0
+gpu=1
 
 model_name=CycleNet
 
@@ -9,7 +9,7 @@ model_id_name=ETTm2
 data_name=ETTm2
 
 model_type='mlp'
-seq_len=96
+seq_len=720
 for pred_len in 96 192 336 720
 do
 for random_seed in 2024 #2025 2026 2027 2028
@@ -30,7 +30,7 @@ do
       --train_epochs 30 \
       --patience 5 \
       --gpu $gpu \
-      --des 'PurePeriodPred' \
+      --des 'IncreasingLookback' \
       --itr 1 --batch_size 256 --learning_rate 0.005 --random_seed $random_seed
 done
 done
