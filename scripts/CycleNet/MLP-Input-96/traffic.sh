@@ -1,5 +1,5 @@
 export CUDA_VISIBLE_DEVICES=0,1,2,3
-gpu=1
+gpu=2
 
 model_name=CycleNet
 
@@ -10,7 +10,7 @@ data_name=custom
 
 
 model_type='mlp'
-seq_len=720 #96
+seq_len=96 #96
 for pred_len in 96 192 336 720
 do
 for random_seed in 2024 #2025 2026 2027 2028
@@ -37,7 +37,7 @@ do
       --use_day_index 1 \
       --t_dim 256 \
       --s_dim 256 \
-      --des 'IncreasingLookback' \
+      --des 'test' \
       --itr 1 --batch_size 16 --learning_rate 0.001 --random_seed $random_seed
 done
 done
