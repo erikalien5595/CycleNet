@@ -9,7 +9,32 @@ model_id_name=ETTm2
 data_name=ETTm2
 
 model_type='mlp'
-seq_len=720
+seq_len=96
+#for pred_len in 96 192 336 720
+#do
+#for random_seed in 2024 #2025 2026 2027 2028
+#do
+#    python -u run.py \
+#      --is_training 1 \
+#      --root_path $root_path_name \
+#      --data_path $data_path_name \
+#      --model_id $model_id_name'_'$seq_len'_'$pred_len \
+#      --model $model_name \
+#      --data $data_name \
+#      --features M \
+#      --seq_len $seq_len \
+#      --pred_len $pred_len \
+#      --enc_in 7 \
+#      --cycle 96 \
+#      --model_type $model_type \
+#      --train_epochs 30 \
+#      --patience 5 \
+#      --gpu $gpu \
+#      --des 'IncreasingLookback' \
+#      --itr 1 --batch_size 256 --learning_rate 0.005 --random_seed $random_seed
+#done
+#done
+# 下面是加emb加STAR模块的实验
 for pred_len in 96 192 336 720
 do
 for random_seed in 2024 #2025 2026 2027 2028
@@ -30,7 +55,37 @@ do
       --train_epochs 30 \
       --patience 5 \
       --gpu $gpu \
-      --des 'IncreasingLookback' \
+      --des 'test' \
+      --dropout 0.15 \
+      --e_layers 3 \
+      --d_model 128 \
+      --d_ff 128 \
+      --itr 1 --batch_size 256 --learning_rate 0.001 --random_seed $random_seed
+done
+done
+
+# 下面是没有加star模块的96最优脚本
+for pred_len in 96 192 336 720
+do
+for random_seed in 2024 #2025 2026 2027 2028
+do
+    python -u run.py \
+      --is_training 1 \
+      --root_path $root_path_name \
+      --data_path $data_path_name \
+      --model_id $model_id_name'_'$seq_len'_'$pred_len \
+      --model $model_name \
+      --data $data_name \
+      --features M \
+      --seq_len $seq_len \
+      --pred_len $pred_len \
+      --enc_in 7 \
+      --cycle 96 \
+      --model_type $model_type \
+      --train_epochs 30 \
+      --patience 5 \
+      --gpu $gpu \
+      --des 'test' \
       --itr 1 --batch_size 256 --learning_rate 0.005 --random_seed $random_seed
 done
 done
