@@ -100,7 +100,7 @@ class Model(nn.Module):
         self.cycleQueue = RecurrentCycle(cycle_len=self.cycle_len, channel_size=self.enc_in)
 
         assert self.model_type in ['linear', 'mlp']
-        self.linear_emb = nn.Linear(self.seq_len, self.d_model)
+        # self.linear_emb = nn.Linear(self.seq_len, self.d_model)
 
         # if self.use_day_index:
         #     self.emb_day = nn.Parameter(torch.zeros(self.emb_len_day, self.t_dim), requires_grad=True)
@@ -119,27 +119,28 @@ class Model(nn.Module):
         # nn.init.xavier_uniform_(self.emb_day_in_month)
         # nn.init.xavier_uniform_(self.emb_min)
 
-        self.input_dim = self.d_model  # self.d_model  # self.seq_len  # self.d_model+self.s_dim+self.t_dim
-        self.output_dim = self.d_model  # self.d_model  # self.pred_len  # self.d_model+self.s_dim+self.t_dim
+        self.input_dim = self.seq_len  # self.d_model  # self.seq_len  # self.d_model+self.s_dim+self.t_dim
+        self.output_dim = self.pred_len  # self.d_model  # self.pred_len  # self.d_model+self.s_dim+self.t_dim
         if self.model_type == 'linear':
             self.model = nn.Linear(self.input_dim, self.output_dim)
         elif self.model_type == 'mlp':
             # self.model = nn.ModuleList([MLPBlock(self.input_dim, self.output_dim, self.d_ff, configs.dropout)
             #                             for _ in range(configs.e_layers)])
-            self.model = nn.Sequential(*[MLPBlock(self.input_dim, self.output_dim, self.d_ff, configs.dropout)
-                                        for _ in range(configs.e_layers)])
-            # self.model = nn.Sequential(
-            #     nn.Linear(self.input_dim, self.d_ff),
-            #     nn.ReLU(),
-            #     nn.Dropout(configs.dropout),
-            #     nn.Linear(self.d_ff, self.output_dim),
-            # )
+            # self.model = nn.Sequential(*[MLPBlock(self.input_dim, self.output_dim, self.d_ff, configs.dropout)
+            #                             for _ in range(configs.e_layers)])
+            self.model = nn.Sequential(
+                nn.Linear(self.input_dim, self.d_ff),
+                nn.ReLU(),
+                nn.Dropout(configs.dropout),
+                nn.Linear(self.d_ff, self.output_dim),
+            )
         # self.regression = nn.Conv1d(
         #     in_channels=self.output_dim, out_channels=self.pred_len, kernel_size=1, bias=True)
-        self.regression = nn.Linear(self.output_dim, self.pred_len)
+        # self.regression = nn.Linear(self.output_dim, self.pred_len)
         # self.conv1d = nn.Conv1d(in_channels=1, out_channels=1, kernel_size=1 + 2 * (25 // 2),
         #                         stride=1, padding=25 // 2, padding_mode="zeros", bias=False)
-        self.star = STAR(d_series=self.d_model, d_core=128)
+        # self.star = STAR(d_series=self.d_model, d_core=128)
+        # self.alpha = nn.Parameter(torch.zeros(1))
 
     def forward(self, x, cycle_index, cycle_data, hour_index=None, day_index=None, month_index=None, day_in_month_index=None):
         # x: (batch_size, seq_len, enc_in), cycle_index: (batch_size,)
@@ -163,7 +164,7 @@ class Model(nn.Module):
         # Q_std = torch.sqrt(torch.var(Q, dim=1, keepdim=True) + 1e-5)
         # x = x - (Q - Q_mean) / Q_std  # self.cycleQueue(cycle_index, self.seq_len, cycle_data)
 
-        x = self.linear_emb(x.permute(0, 2, 1))  # batch_size, N, d_model
+        # x = self.linear_emb(x.permute(0, 2, 1))  # batch_size, N, d_model
         # emb_day = torch.zeros(batch_size, self.enc_in, self.t_dim).to(x.device)
         # emb_hour = torch.zeros(batch_size, self.enc_in, self.t_dim).to(x.device)
         # emb_month = torch.zeros(batch_size, self.enc_in, self.t_dim).to(x.device)
@@ -187,15 +188,15 @@ class Model(nn.Module):
 
         # # forecasting with channel independence (parameters-sharing)
         # x = x.permute(0, 2, 1)  # 不做embedding的话需要转置
-        x = self.star(x)
+        # x = self.star(x)
         # x = self.conv1d(x.reshape(-1, 1, self.seq_len)).reshape(-1, self.enc_in, self.seq_len) + x
         # node_emb = self.node_emb.unsqueeze(0).expand(batch_size, -1, -1)  # batch_size, N, s_dim
         # x = torch.cat([x, node_emb], dim=2)  # x = torch.cat([x, time_emb, node_emb], dim=2)  # batch_size, N, d_model+t_dim+s_dim
 
-        x = self.model(x)
-        y = self.regression(x).permute(0, 2, 1)
+        # x = self.model(x)
+        # y = self.regression(x).permute(0, 2, 1)
 
-        # y = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)  # batch_size, pred_len, N
+        y = self.model(x.permute(0, 2, 1)).permute(0, 2, 1)  # batch_size, pred_len, N
 
         # add back the cycle of the output data
         y = y + self.cycleQueue((cycle_index + self.seq_len) % self.cycle_len, self.pred_len, cycle_data)
